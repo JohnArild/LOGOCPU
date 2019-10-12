@@ -31,9 +31,10 @@ end simCPU;
 
 architecture tb of simCPU is
     signal      LED : STD_LOGIC_VECTOR (7 downto 0);
+    signal      PCR : STD_LOGIC_VECTOR (7 downto 0);
     signal      rst : STD_LOGIC;
     signal      clk : STD_LOGIC;
-    signal      rstLED : STD_LOGIC;
+  --signal      rstLED : STD_LOGIC;
     constant    clk_period : time := 10 ns;
 begin
 
@@ -42,7 +43,7 @@ begin
     port map (clk => clk, 
               rst => rst, 
               LED => LED,
-              rstLED => rstLED
+              PCR => PCR
               );
 
 clk_process: process 

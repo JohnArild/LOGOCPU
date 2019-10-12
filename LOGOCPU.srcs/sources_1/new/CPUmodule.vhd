@@ -24,11 +24,23 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 --use UNISIM.VComponents.all;
 
 entity CPUmodule is
+
+    generic ( 
+        LDR  : STD_LOGIC_VECTOR (7 downto 0):= X"01";
+        DECR : STD_LOGIC_VECTOR (7 downto 0):= X"02";
+        JMPZ : STD_LOGIC_VECTOR (7 downto 0):= X"03";
+        INCR : STD_LOGIC_VECTOR (7 downto 0):= X"04";
+        MxT  : STD_LOGIC_VECTOR (7 downto 0):= X"05";
+        PDN  : STD_LOGIC_VECTOR (7 downto 0):= X"06";
+        PUP  : STD_LOGIC_VECTOR (7 downto 0):= X"07"
+        );
+        
     Port ( 
                 LED : out STD_LOGIC_VECTOR (7 downto 0);
+                PCR : out STD_LOGIC_VECTOR (7 downto 0);
                 rst : in STD_LOGIC;
-                clk : in STD_LOGIC;
-                rstLED : out STD_LOGIC
+                clk : in STD_LOGIC
+                --rstLED : out STD_LOGIC
          );
          
 end CPUmodule;
@@ -59,10 +71,10 @@ begin
         if rst = '0' then 
             int_count := 0;
             PC <= (others=>'0');
-            mAddress <= "00000001";
-            rstLED <= rst;
+            mAddress <= "00000001"; -- debug
+            --rstLED <= rst; -- debug
         elsif rising_edge(clk) then
-            rstLED <= rst;
+            --rstLED <= rst; --debug
             int_count := int_count + 1;
             if int_count = 1 then 
                 mAddress <= PC; -- Fetch
@@ -72,18 +84,21 @@ begin
             elsif int_count = 3 then 
                 int_count := 0;
                 
-                if IR = X"00" then -- Decode Incriment R
+                if IR = INCR then -- Decode Incriment R
                     DR <= DR + 1;-- execute Load
+                    
+                elsif IR = DECR then -- Decode Incriment R
+                    DR <= DR - 1;-- execute Load
                 
-                elsif IR = X"01" then -- Decode Load
+                elsif IR = LDR then -- Decode Load
                     mAddress <= PC;-- execute Load
                     DR <= mData;   -- execute Load
                     
-                elsif IR = X"02" AND DR = X"00" then -- Decode Jump (condition met)
+                elsif IR = JMPZ AND DR = X"00" then -- Decode Jump (condition met)
                     mAddress <= PC;-- execute Jump
                     PC <= mData;   -- execute Jump
                     
-                elsif IR = X"02" AND NOT DR = X"00" then -- Decode Jump (condition not met)
+                elsif IR = JMPZ AND NOT DR = X"00" then -- Decode Jump (condition not met)
                     PC <= PC + 1;                       -- no Jump
                 end if;
             end if;
@@ -94,6 +109,7 @@ begin
     --LED <= PC;
     --LED <= mAddress;
     --LED <= mData;
-    LED <= DR;
+    LED <= DR; -- debug
+    PCR <= PC;
 
 end Master;
