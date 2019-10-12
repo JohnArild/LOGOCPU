@@ -67,12 +67,24 @@ begin
             if int_count = 1 then 
                 mAddress <= PC; -- Fetch
                 IR <= mDATA;
-            --elsif int_count = 2 then IR <= mDATA; -- Fetch
+            elsif int_count = 2 then 
+                PC <= PC + 1; -- Incriment PC
             elsif int_count = 3 then 
                 int_count := 0;
-                if IR = X"02" then -- decode
-                    PC <= X"00";   -- execute
-                 else PC <= PC + 1;
+                
+                if IR = X"00" then -- Decode Incriment R
+                    DR <= DR + 1;-- execute Load
+                
+                elsif IR = X"01" then -- Decode Load
+                    mAddress <= PC;-- execute Load
+                    DR <= mData;   -- execute Load
+                    
+                elsif IR = X"02" AND DR = X"00" then -- Decode Jump (condition met)
+                    mAddress <= PC;-- execute Jump
+                    PC <= mData;   -- execute Jump
+                    
+                elsif IR = X"02" AND NOT DR = X"00" then -- Decode Jump (condition not met)
+                    PC <= PC + 1;                       -- no Jump
                 end if;
             end if;
         end if; 
@@ -81,6 +93,7 @@ begin
 
     --LED <= PC;
     --LED <= mAddress;
-    LED <= mData;
+    --LED <= mData;
+    LED <= DR;
 
 end Master;
