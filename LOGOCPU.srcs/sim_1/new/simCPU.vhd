@@ -30,18 +30,17 @@ entity simCPU is
 end simCPU;
 
 architecture tb of simCPU is
-    --signal        mAddress : STD_LOGIC_VECTOR (7 downto 0);
-    --signal           mData : STD_LOGIC_VECTOR (7 downto 0);
-    signal             LED : STD_LOGIC_VECTOR (7 downto 0);
-    signal             clk : STD_LOGIC;
-    signal             rst : STD_LOGIC;
-    signal          rstLED : STD_LOGIC;
+    signal      LED : STD_LOGIC_VECTOR (7 downto 0);
+    signal      rst : STD_LOGIC;
+    signal      clk : STD_LOGIC;
+    signal      rstLED : STD_LOGIC;
     constant    clk_period : time := 10 ns;
 begin
 
 
     uut : entity work.CPUmodule
-    port map (clk => clk, rst => rst, 
+    port map (clk => clk, 
+              rst => rst, 
               LED => LED,
               rstLED => rstLED
               );
@@ -56,13 +55,10 @@ clk_process: process
 
    stim_proc: process
       begin
-
-        rst <= '1';
-        wait for clk_period * 10;
         rst <= '0';
-        wait for clk_period * 10;
+        wait for clk_period * 1;
         rst <= '1';  
-        wait for clk_period * 10;      
+        wait for clk_period * 100;      
       end process ;
 
 end tb;

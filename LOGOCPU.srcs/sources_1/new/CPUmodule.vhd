@@ -60,25 +60,27 @@ begin
             int_count := 0;
             PC <= (others=>'0');
             mAddress <= "00000001";
+            rstLED <= rst;
         elsif rising_edge(clk) then
-            if int_count = 0 then 
-                mAddress <= PC;
-            elsif int_count = 1 then 
-                IR <= mDATA;
-            elsif int_count = 2 then 
-                if PC < 8 then 
-                    PC <= PC + 1;
-                else 
-                    PC <= "00000000";
-                end if;
-                int_count := 0;
-            end if;
+            rstLED <= rst;
             int_count := int_count + 1;
+            if int_count = 1 then 
+                mAddress <= PC; -- Fetch
+                IR <= mDATA;
+            --elsif int_count = 2 then IR <= mDATA; -- Fetch
+            elsif int_count = 3 then 
+                int_count := 0;
+                if IR = X"02" then -- decode
+                    PC <= X"00";   -- execute
+                 else PC <= PC + 1;
+                end if;
+            end if;
         end if; 
         
     end process;
 
+    --LED <= PC;
+    --LED <= mAddress;
     LED <= mData;
-    rstLED <= rst;
 
 end Master;
