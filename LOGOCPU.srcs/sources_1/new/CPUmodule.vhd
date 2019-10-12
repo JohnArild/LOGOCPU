@@ -32,12 +32,24 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity CPUmodule is
---  Port ( );
+    Port ( 
+                LED : out STD_LOGIC_VECTOR (7 downto 0));
 end CPUmodule;
 
 architecture Master of CPUmodule is
+    signal mAddress, mData : STD_LOGIC_VECTOR (7 downto 0);
+begin    
+    memory_unit: entity work.ROMmodule(Behavioral)
+        port map(mAddress=>mAddress, mData=>mData);
+    
+    mAddress <= "00000001";
+    LED <= mData;
 
-begin
+-- Psudo Code
+-- Set mAddress to PC
+-- Set IR to mData
+-- Increment PC
+-- Decode/Execute IR
 
 
 end Master;
