@@ -31,11 +31,10 @@ entity CPUmodule is
         );
         
     Port ( 
-                LED : out STD_LOGIC_VECTOR (7 downto 0);
-                PCR : out STD_LOGIC_VECTOR (7 downto 0);
-                rst : in STD_LOGIC;
-                clk : in STD_LOGIC
-                --rstLED : out STD_LOGIC
+         LED : out STD_LOGIC_VECTOR (7 downto 0);
+         PCR : out STD_LOGIC_VECTOR (7 downto 0);
+         rst : in STD_LOGIC;
+         clk : in STD_LOGIC
          );
          
 end CPUmodule;
@@ -65,19 +64,18 @@ begin
         end if;
     end process;
 
-    PC_next <=  PC + 2 when (IR = LDR OR IR = INCR) else
-                mData  when (IR = JMPZ AND DR = X"00") else
+    PC_next <=  mData  when (IR = JMPZ AND DR = X"00") else
                 PC + 1;
     
     DR_next <=  DR + 1 when (IR = INCR) else
                 DR - 1 when (IR = DECR) else
-                mData  when (IR = LDR OR IR = INCR) else
+                mData  when (IR = LDR ) else
                 DR;
     
-    IR_next <= mData;
+    IR_next <=  X"00" when (IR = LDR ) else
+                mData;
     
-    mAddress <= PC + 1 when (IR = JMPZ OR IR = LDR) else
-                PC;
+    mAddress <= PC;
     
     --LED <= PC;
     --LED <= mAddress;

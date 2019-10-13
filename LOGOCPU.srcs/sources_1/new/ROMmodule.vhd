@@ -25,7 +25,7 @@ entity ROMmodule is
         LDR  : STD_LOGIC_VECTOR (7 downto 0):= X"01";
         DECR : STD_LOGIC_VECTOR (7 downto 0):= X"02";
         JMPZ : STD_LOGIC_VECTOR (7 downto 0):= X"03";
-        INCR  : STD_LOGIC_VECTOR (7 downto 0):= X"04";
+        INCR : STD_LOGIC_VECTOR (7 downto 0):= X"04";
         MxT  : STD_LOGIC_VECTOR (7 downto 0):= X"05";
         PDN  : STD_LOGIC_VECTOR (7 downto 0):= X"06";
         PUP  : STD_LOGIC_VECTOR (7 downto 0):= X"07"
