@@ -32,7 +32,8 @@ entity ROMmodule is
         );
     
     Port ( mAddress : in STD_LOGIC_VECTOR (7 downto 0);
-              mData : out STD_LOGIC_VECTOR (7 downto 0));
+              mData : out STD_LOGIC_VECTOR (7 downto 0);
+              enable: in boolean);
              
 end ROMmodule;
 
@@ -58,5 +59,5 @@ architecture Behavioral of ROMmodule is
     X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00"
     );
 begin
-    mData <= ROM_Content(to_integer(unsigned(mAddress)));
+    mData <= ROM_Content(to_integer(unsigned(mAddress))) when enable;
 end Behavioral;

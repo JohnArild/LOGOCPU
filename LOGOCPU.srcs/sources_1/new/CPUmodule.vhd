@@ -48,19 +48,22 @@ architecture Master of CPUmodule is
     signal  IR_next : STD_LOGIC_VECTOR (7 downto 0) := X"00";
     signal       DR : STD_LOGIC_VECTOR (7 downto 0) := X"00";
     signal  DR_next : STD_LOGIC_VECTOR (7 downto 0) := X"00";
+    signal   enable : boolean := TRUE;
 begin    
 
     memory_unit: entity work.ROMmodule(Behavioral)
-        port map(mAddress=>mAddress, mData=>mData);
+        port map(mAddress=>mAddress, mData=>mData, enable=>enable);
     
     process(clk) 
     begin
         if rst = '0' then 
             PC <= (others=>'0');
         elsif rising_edge(clk) then
-            PC <= PC_next;  -- Update Program Counter
-            DR <= DR_next;  -- Update Data Register
-            IR <= IR_next;  -- Update Instruction Register
+            if enable then
+                PC <= PC_next;  -- Update Program Counter
+                DR <= DR_next;  -- Update Data Register
+                IR <= IR_next;  -- Update Instruction Register
+            end if;
         end if;
     end process;
 
