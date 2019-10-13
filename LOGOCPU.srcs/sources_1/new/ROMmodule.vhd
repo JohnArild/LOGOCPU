@@ -32,8 +32,7 @@ entity ROMmodule is
         );
     
     Port ( mAddress : in STD_LOGIC_VECTOR (7 downto 0);
-              mData : out STD_LOGIC_VECTOR (7 downto 0);
-              enable: in boolean);
+              mData : out STD_LOGIC_VECTOR (7 downto 0));
              
 end ROMmodule;
 
@@ -41,7 +40,7 @@ architecture Behavioral of ROMmodule is
     type rom_type is array (0 to 255) of STD_LOGIC_VECTOR (7 downto 0);
     constant ROM_Content : rom_type :=(
     
-    LDR  , X"55", LDR  , X"0F", DECR , INCR , INCR , INCR , JMPZ , INCR , INCR , DECR , INCR , INCR , LDR  , X"00",
+    LDR  , X"55", LDR  , X"0F", DECR , INCR , INCR , INCR , JMPZ , INCR , INCR , DECR , MxT  , X"0F", LDR  , X"00",
     JMPZ , X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", 
     X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", 
     X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", 
@@ -59,5 +58,5 @@ architecture Behavioral of ROMmodule is
     X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00"
     );
 begin
-    mData <= ROM_Content(to_integer(unsigned(mAddress))) when enable;
+    mData <= ROM_Content(to_integer(unsigned(mAddress)));
 end Behavioral;

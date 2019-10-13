@@ -31,10 +31,12 @@ entity CPUmodule is
         );
         
     Port ( 
-         LED : out STD_LOGIC_VECTOR (7 downto 0):= X"00";
-         --PCR : out STD_LOGIC_VECTOR (7 downto 0):= X"00";
-         rst : in STD_LOGIC;
-         clk : in STD_LOGIC
+                LED : out STD_LOGIC_VECTOR (7 downto 0):= X"00"; -- debug
+    rightMotorPhase : out STD_LOGIC_VECTOR (3 downto 0);
+     leftMotorPhase : out STD_LOGIC_VECTOR (3 downto 0);
+           servoPWM : out STD_LOGIC;
+                rst : in  STD_LOGIC;
+                clk : in  STD_LOGIC
          );
          
 end CPUmodule;
@@ -48,18 +50,31 @@ architecture Master of CPUmodule is
     signal  IR_next : STD_LOGIC_VECTOR (7 downto 0) := X"00";
     signal       DR : STD_LOGIC_VECTOR (7 downto 0) := X"00";
     signal  DR_next : STD_LOGIC_VECTOR (7 downto 0) := X"00";
-    signal   enable : boolean := TRUE;
+    signal servoPos : STD_LOGIC := '1';
+    signal    CPUen : boolean := TRUE;
+    signal stepperFinished : boolean := FALSE;
 begin    
 
     memory_unit: entity work.ROMmodule(Behavioral)
-        port map(mAddress=>mAddress, mData=>mData, enable=>enable);
+        port map(mAddress=>mAddress, mData=>mData);
+        
+    stepper_unit: entity work.StepperDriver(Behavioral)
+        port map(dataBus => mData,
+                rightMotorPhase => rightMotorPhase,
+                leftMotorPhase => leftMotorPhase,
+                clk => clk,
+                stepperFinished => stepperFinished,
+                IR => IR);
+                
+    servo_unit: entity work.ServoDriver(Behavioral)
+        port map(servoPos => servoPos, servoPWM => servoPWM, clk  => clk);
     
     process(clk) 
     begin
         if rst = '0' then 
             PC <= (others=>'0');
         elsif rising_edge(clk) then
-            if enable then
+            if CPUen then
                 PC <= PC_next;  -- Update Program Counter
                 DR <= DR_next;  -- Update Data Register
                 IR <= IR_next;  -- Update Instruction Register
@@ -72,11 +87,16 @@ begin
     
     DR_next <=  DR + 1 when (IR = INCR) else
                 DR - 1 when (IR = DECR) else
-                mData  when (IR = LDR ) else
+                mData  when (IR = LDR ) OR (IR = MxT) else
                 DR;
     
     IR_next <=  X"00" when (IR = LDR ) else
+                IR when (IR = MxT) AND (stepperFinished = FALSE)  else
+                X"00" when (IR = MxT) AND (stepperFinished = TRUE) else 
                 mData;
+                
+    CPUen   <=  FALSE when (IR = MxT) AND (stepperFinished = FALSE) else
+                TRUE;
     
     mAddress <= PC;
     
