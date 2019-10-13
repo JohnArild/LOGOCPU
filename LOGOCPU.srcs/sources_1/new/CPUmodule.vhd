@@ -18,11 +18,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
-
 entity CPUmodule is
 
     generic ( 
@@ -49,63 +44,41 @@ architecture Master of CPUmodule is
     signal mAddress : STD_LOGIC_VECTOR (7 downto 0) := X"00";
     signal    mData : STD_LOGIC_VECTOR (7 downto 0) := X"00";
     signal       PC : STD_LOGIC_VECTOR (7 downto 0) := X"00";
+    signal  PC_next : STD_LOGIC_VECTOR (7 downto 0) := X"00";
     signal       IR : STD_LOGIC_VECTOR (7 downto 0) := X"00";
+    signal  IR_next : STD_LOGIC_VECTOR (7 downto 0) := X"00";
     signal       DR : STD_LOGIC_VECTOR (7 downto 0) := X"00";
+    signal  DR_next : STD_LOGIC_VECTOR (7 downto 0) := X"00";
 begin    
 
     memory_unit: entity work.ROMmodule(Behavioral)
         port map(mAddress=>mAddress, mData=>mData);
     
-    --mAddress <= "00000001";
-    --LED <= mData;
-
--- Psudo Code
--- Set mAddress to PC
--- Set IR to mData
--- Increment PC
--- Decode/Execute IR
-
     process(clk) 
-        variable int_count : integer range 7 downto 0 := 0;
     begin
         if rst = '0' then 
-            int_count := 0;
             PC <= (others=>'0');
-            mAddress <= "00000001"; -- debug
-            --rstLED <= rst; -- debug
         elsif rising_edge(clk) then
-            --rstLED <= rst; --debug
-            int_count := int_count + 1;
-            if int_count = 1 then 
-                mAddress <= PC; -- Fetch
-                IR <= mDATA;
-            elsif int_count = 2 then 
-                PC <= PC + 1; -- Incriment PC
-            elsif int_count = 3 then 
-                int_count := 0;
-                
-                if IR = INCR then -- Decode Incriment R
-                    DR <= DR + 1;-- execute Load
-                    
-                elsif IR = DECR then -- Decode Incriment R
-                    DR <= DR - 1;-- execute Load
-                
-                elsif IR = LDR then -- Decode Load
-                    mAddress <= PC;-- execute Load
-                    DR <= mData;   -- execute Load
-                    
-                elsif IR = JMPZ AND DR = X"00" then -- Decode Jump (condition met)
-                    mAddress <= PC;-- execute Jump
-                    PC <= mData;   -- execute Jump
-                    
-                elsif IR = JMPZ AND NOT DR = X"00" then -- Decode Jump (condition not met)
-                    PC <= PC + 1;                       -- no Jump
-                end if;
-            end if;
-        end if; 
-        
+            PC <= PC_next;  -- Update Program Counter
+            DR <= DR_next;  -- Update Data Register
+            IR <= IR_next;  -- Update Instruction Register
+        end if;
     end process;
 
+    PC_next <=  PC + 2 when (IR = LDR OR IR = INCR) else
+                mData  when (IR = JMPZ AND DR = X"00") else
+                PC + 1;
+    
+    DR_next <=  DR + 1 when (IR = INCR) else
+                DR - 1 when (IR = DECR) else
+                mData  when (IR = LDR OR IR = INCR) else
+                DR;
+    
+    IR_next <= mData;
+    
+    mAddress <= PC + 1 when (IR = JMPZ OR IR = LDR) else
+                PC;
+    
     --LED <= PC;
     --LED <= mAddress;
     --LED <= mData;
