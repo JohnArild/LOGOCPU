@@ -31,8 +31,8 @@ entity CPUmodule is
         );
         
     Port ( 
-         LED : out STD_LOGIC_VECTOR (7 downto 0);
-         PCR : out STD_LOGIC_VECTOR (7 downto 0);
+         LED : out STD_LOGIC_VECTOR (7 downto 0):= X"00";
+         --PCR : out STD_LOGIC_VECTOR (7 downto 0):= X"00";
          rst : in STD_LOGIC;
          clk : in STD_LOGIC
          );
@@ -84,6 +84,6 @@ begin
     --LED <= mAddress;
     --LED <= mData;
     LED <= DR; -- debug
-    PCR <= PC;
+    --PCR <= PC;
 
 end Master;
