@@ -39,6 +39,7 @@ begin
                  end if;
             elsif (IR = X"00") then
                 stepperFinished <= false;
+                int_count := 0;
             end if;
         end if;
     end process;
