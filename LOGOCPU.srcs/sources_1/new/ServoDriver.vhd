@@ -12,9 +12,9 @@
 -- 
 ----------------------------------------------------------------------------------
 
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 entity ServoDriver is
     Port ( servoPos : in  STD_LOGIC;
@@ -23,8 +23,16 @@ entity ServoDriver is
 end ServoDriver;
 
 architecture Behavioral of ServoDriver is
-
+signal PWMclock : STD_LOGIC;
 begin
-
+    process(clk) 
+    variable counter1 : integer := 0;
+    begin
+        if rising_edge(clk) then
+            if (counter1 = 1000) then
+                PWMclock <= not PWMclock;
+            end if;
+        end if;
+    end process;
 
 end Behavioral;
