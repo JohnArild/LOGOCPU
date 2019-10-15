@@ -1,3 +1,3 @@
 # LOGOCPU
 
-Xilinx Vivado project
+Xilinx Vivado project.
