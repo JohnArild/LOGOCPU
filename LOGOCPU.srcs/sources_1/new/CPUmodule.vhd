@@ -36,7 +36,8 @@ entity CPUmodule is
      leftMotorPhase : out STD_LOGIC_VECTOR (3 downto 0);
            servoPWM : out STD_LOGIC;
                 rst : in  STD_LOGIC;
-                clk : in  STD_LOGIC
+                clk : in  STD_LOGIC;
+          servoTest : in  STD_LOGIC -- debug only
          );
          
 end CPUmodule;
@@ -105,5 +106,5 @@ begin
     --LED <= mData;
     LED <= DR; -- debug
     --PCR <= PC;
-
+    servoPos <= servoTest; -- debug only
 end Master;

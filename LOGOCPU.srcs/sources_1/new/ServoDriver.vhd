@@ -26,18 +26,36 @@ architecture Behavioral of ServoDriver is
 signal PWMclock : STD_LOGIC := '0';
 signal counter1 : STD_LOGIC_VECTOR(17 downto 0);
 begin
+    --First generate 1kHz clock that can be used to drive PWM signal
     process(clk) 
     variable counter1 : integer := 0;
     begin
         if rising_edge(clk) then
-            if (counter1 = 100000) then
-                PWMclock <= not PWMclock;
-                
+            if (counter1 = 50000) then
+                PWMclock <= not PWMclock;    
                 counter1 := 0;
             else 
                 counter1 := counter1 + 1;
             end if;
         end if;
     end process;
-    servoPWM <= PWMclock;
+    
+    --Use 1kHz clock to generate pulse length of 1 or 2 ms every 20ms
+    process(PWMclock) 
+    variable counter2 : integer := 0;
+    begin
+        if rising_edge(PWMclock) then
+            counter2 := counter2 + 1;
+            if (counter2 = 1) then
+                servoPWM <= '1';
+            elsif (counter2 = 2) AND (servoPOS = '1') then
+                servoPWM <= '1';
+            elsif counter2 > 20 then -- reset counter after 20ms
+                counter2 := 0;
+            else
+                servoPWM <= '0';
+            end if;
+        end if;
+    end process;
+
 end Behavioral;
