@@ -23,16 +23,21 @@ entity ServoDriver is
 end ServoDriver;
 
 architecture Behavioral of ServoDriver is
-signal PWMclock : STD_LOGIC;
+signal PWMclock : STD_LOGIC := '0';
+signal counter1 : STD_LOGIC_VECTOR(17 downto 0);
 begin
     process(clk) 
     variable counter1 : integer := 0;
     begin
         if rising_edge(clk) then
-            if (counter1 = 1000) then
+            if (counter1 = 100000) then
                 PWMclock <= not PWMclock;
+                
+                counter1 := 0;
+            else 
+                counter1 := counter1 + 1;
             end if;
         end if;
     end process;
-
+    servoPWM <= PWMclock;
 end Behavioral;
