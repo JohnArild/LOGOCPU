@@ -60,10 +60,10 @@ clk_process: process
         rst <= '0';
         wait for clk_period * 1;
         rst <= '1';  
-        wait for clk_period * 100000;      
-        wait for clk_period * 100000;  
-        wait for clk_period * 100000;  
-        wait for clk_period * 100000;  
+        while (1 = 1) loop
+            wait for clk_period;
+        end loop; 
+        
       end process ;
 
 end tb;

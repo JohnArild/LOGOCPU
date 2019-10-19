@@ -74,6 +74,8 @@ begin
     begin
         if rst = '0' then 
             PC <= (others=>'0');
+            DR <= (others=>'0');
+            IR <= (others=>'0');
         elsif rising_edge(clk) then
             if CPUen then
                 PC <= PC_next;  -- Update Program Counter
