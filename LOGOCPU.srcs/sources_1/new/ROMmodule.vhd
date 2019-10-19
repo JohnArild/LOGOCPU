@@ -39,8 +39,8 @@ end ROMmodule;
 architecture Behavioral of ROMmodule is
     type rom_type is array (0 to 255) of STD_LOGIC_VECTOR (7 downto 0);
     constant ROM_Content : rom_type :=( 
-    LDR  , X"55", LDR  , X"0F", DECR , INCR , INCR , INCR , JMPZ , INCR , INCR , DECR , MxT  , X"0F", LDR  , X"00",
-    JMPZ , X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", 
+    LDR  , X"55", LDR  , X"0F", DECR , INCR , INCR , INCR , PDN  , INCR , INCR , DECR , MxT  , X"0F", LDR  , X"00",
+    PUP  , MxT  , X"FF", JMPZ , X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", 
     X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", 
     X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", 
     X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", X"00", 

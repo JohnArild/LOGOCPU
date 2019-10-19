@@ -68,7 +68,7 @@ begin
                 IR => IR);
                 
     servo_unit: entity work.ServoDriver(Behavioral)
-        port map(servoPos => servoPos, servoPWM => servoPWM, clk  => clk);
+        port map(IR => IR, servoPWM => servoPWM, clk  => clk);
     
     process(clk) 
     begin
@@ -83,7 +83,7 @@ begin
         end if;
     end process;
 
-    PC_next <=  mData  when (IR = JMPZ AND DR = X"00") else
+    PC_next <=  mData  when (IR = JMPZ AND NOT DR = X"00") else
                 PC + 1;
     
     DR_next <=  DR + 1 when (IR = INCR) else
@@ -106,5 +106,5 @@ begin
     --LED <= mData;
     LED <= DR; -- debug
     --PCR <= PC;
-    servoPos <= servoTest; -- debug only
+    --servoPos <= servoTest; -- debug only
 end Master;

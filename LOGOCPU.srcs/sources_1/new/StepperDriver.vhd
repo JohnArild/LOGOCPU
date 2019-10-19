@@ -22,7 +22,7 @@ entity StepperDriver is
            rightMotorPhase : out   STD_LOGIC_VECTOR (3 downto 0) ;
            leftMotorPhase  : out   STD_LOGIC_VECTOR (3 downto 0) ;
            clk             : in    STD_LOGIC;
-                        IR : in STD_LOGIC_VECTOR (7 downto 0);
+           IR              : in    STD_LOGIC_VECTOR (7 downto 0);
            stepperFinished : inout boolean);
 end StepperDriver;
 
@@ -45,26 +45,27 @@ begin
     end process;
 
     process(PWMclock) 
-    variable int_count : integer range 2**8 downto 0 := 0;
-    variable int_count2 : integer range 4 downto 0 := 0;
+    variable int_count : integer range 2**8 downto 0 := 0; -- counts total steps
+    variable int_Phasecount : integer range 3 downto 0 := 0; -- keeps track of current step
     begin
         if rising_edge(PWMclock) then
             if (stepperFinished = false) AND (IR = X"05") then
-                 if int_count = 0 then 
-                    Motorphase <= "0011";
-                 elsif int_count = 1 then
-                    Motorphase <= "1001";
-                 elsif int_count = 1 then
-                    Motorphase <= "1100";
-                 elsif int_count = 1 then
-                    Motorphase <= "0110";
+                 if    int_Phasecount = 0 then Motorphase <= b"0011";
+                 elsif int_Phasecount = 1 then Motorphase <= b"1001";
+                 elsif int_Phasecount = 2 then Motorphase <= b"1100";
+                 elsif int_Phasecount = 3 then Motorphase <= b"0110";
                  end if;
                  if int_count = unsigned(dataBus) then
                     stepperFinished <= true;
-                    int_count2 := 0;
+                    int_count := 0;
                  end if;
-                 int_count2 := int_count2 + 1;
+                 int_Phasecount := int_Phasecount + 1;
                  int_count := int_count + 1;
+                 if dataBus AND B"10000000" = B"10000000" then -- check if reverse bit is set
+                    int_Phasecount := int_Phasecount - 1; -- Move backwards
+                 else
+                    int_Phasecount := int_Phasecount + 1; -- Move forward
+                 end if;
             elsif (IR = X"00") then
                 stepperFinished <= false;
                 int_count := 0;
