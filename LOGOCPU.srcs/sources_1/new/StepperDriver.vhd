@@ -27,23 +27,51 @@ entity StepperDriver is
 end StepperDriver;
 
 architecture Behavioral of StepperDriver is
+signal PWMclock : STD_LOGIC := '0';
+signal Motorphase : STD_LOGIC_VECTOR (3 downto 0) := "0011";
 begin
+
     process(clk) 
-    variable int_count : integer range 2**8 downto 0 := 0;
+    variable counter1 : integer := 0;
     begin
         if rising_edge(clk) then
+            if (counter1 = 1000000) then
+                PWMclock <= not PWMclock;    
+                counter1 := 0;
+            else 
+                counter1 := counter1 + 1;
+            end if;
+        end if;
+    end process;
+
+    process(PWMclock) 
+    variable int_count : integer range 2**8 downto 0 := 0;
+    variable int_count2 : integer range 4 downto 0 := 0;
+    begin
+        if rising_edge(PWMclock) then
             if (stepperFinished = false) AND (IR = X"05") then
-                 int_count := int_count + 1;
+                 if int_count = 0 then 
+                    Motorphase <= "0011";
+                 elsif int_count = 1 then
+                    Motorphase <= "1001";
+                 elsif int_count = 1 then
+                    Motorphase <= "1100";
+                 elsif int_count = 1 then
+                    Motorphase <= "0110";
+                 end if;
                  if int_count = unsigned(dataBus) then
                     stepperFinished <= true;
+                    int_count2 := 0;
                  end if;
+                 int_count2 := int_count2 + 1;
+                 int_count := int_count + 1;
             elsif (IR = X"00") then
                 stepperFinished <= false;
                 int_count := 0;
             end if;
         end if;
     end process;
-    
+    rightMotorPhase <= Motorphase;
     
 
 end Behavioral;

@@ -36,15 +36,15 @@ architecture tb of simCPU is
     signal             rst : STD_LOGIC;
     signal             clk : STD_LOGIC;
     signal        servoPWM : STD_LOGIC;
-  --signal      rstLED : STD_LOGIC;
+    signal       servoTest : STD_LOGIC;
     constant    clk_period : time := 10 ns;
 begin
 
     uut : entity work.CPUmodule
     port map (clk => clk, 
               rst => rst, 
-              LED => LED
-              --PCR => PCR
+              LED => LED,
+              servoTest => servoTest
               );
 
 clk_process: process 
@@ -60,7 +60,10 @@ clk_process: process
         rst <= '0';
         wait for clk_period * 1;
         rst <= '1';  
-        wait for clk_period * 100;      
+        wait for clk_period * 100000;      
+        wait for clk_period * 100000;  
+        wait for clk_period * 100000;  
+        wait for clk_period * 100000;  
       end process ;
 
 end tb;
