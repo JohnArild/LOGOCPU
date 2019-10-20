@@ -37,6 +37,7 @@ begin
     variable counter1 : integer := 0;
     begin
         if rising_edge(clk) then
+            -- Generate 1kHz clock
             if (counter1 = 50000) then
                 PWMclock <= not PWMclock;    
                 counter1 := 0;

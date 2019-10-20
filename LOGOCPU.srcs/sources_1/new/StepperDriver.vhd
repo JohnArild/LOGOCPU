@@ -65,13 +65,7 @@ begin
                  elsif int_Phasecount = 3 then Motorphase <= b"1100";
                  elsif int_Phasecount = 4 then Motorphase <= b"0110";
                  end if;
-                 --if int_count = unsigned(dataBus AND b"00111111") then -- bitmask to ignorte two most significant bits
-                 --int_Phasecount := int_Phasecount + 1;
-                 --if int_count >= stepCount then
-                 --   int_count <= 0;
-                 --end if;
-                 --int_count <= int_count + 1;
-                 if (dataBus OR b"01111111") = b"11111111" then -- check if reverse bit is set
+                 if (dataBus OR b"00111111") = b"11111111" then -- check if reverse bit is set
                     int_Phasecount := int_Phasecount - 1; -- Move backwards
                     if int_Phasecount = 0 then int_Phasecount := 4;
                     end if;
@@ -86,7 +80,12 @@ begin
             end if;
         end if;
     end process;
-    rightMotorPhase <= Motorphase;
+    
     stepCount <= to_integer(unsigned(dataBus AND b"00111111")) * 100;
     
+    rightMotorPhase <= b"0000" when (dataBus OR b"00111111") = b"01111111" else
+                       Motorphase;
+    
+    leftMotorPhase  <= b"0000" when (dataBus OR b"00111111") = b"10111111" else
+                       Motorphase;
 end Behavioral;
