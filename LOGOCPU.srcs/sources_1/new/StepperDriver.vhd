@@ -27,7 +27,7 @@ entity StepperDriver is
 end StepperDriver;
 
 architecture Behavioral of StepperDriver is
-signal PWMclock : STD_LOGIC := '0';
+signal StepperClock : STD_LOGIC := '0';
 signal Motorphase : STD_LOGIC_VECTOR (3 downto 0) := "0011";
 --signal stepCount : STD_LOGIC_VECTOR (7 downto 0);
 signal stepCount : integer := 0;
@@ -38,15 +38,19 @@ begin
     variable counter1 : integer := 0;
     begin
         if rising_edge(clk) then
+            -- Generate stepper clock. This determines the speed of the stepper motors
+            -- clk is 100MHz, StepperClock is 500Hz. This means new step every 2ms.
             if (counter1 = 100000) then
-                PWMclock <= not PWMclock;    
+                StepperClock <= not StepperClock;    
                 counter1 := 0;
                 int_count <= int_count + 1;
             else 
                 counter1 := counter1 + 1;
             end if;
+            -- stepperFinished is used to determine if CPU should halt or not
             if (IR = X"00") then
                 stepperFinished <= false;
+                int_count <= 0;
             elsif int_count > stepCount then
                 stepperFinished <= true;
                 int_count <= 0;
@@ -54,18 +58,18 @@ begin
         end if;
     end process;
 
-    process(PWMclock) 
-    --variable int_count : integer := 0; -- counts total steps
+    process(StepperClock) 
     variable int_Phasecount : integer := 0; -- keeps track of current step
     begin
-        if rising_edge(PWMclock) then
+        if rising_edge(StepperClock) then
             if (stepperFinished = false) AND (IR = X"05") then
                  if    int_Phasecount = 1 then Motorphase <= b"0011";
                  elsif int_Phasecount = 2 then Motorphase <= b"1001";
                  elsif int_Phasecount = 3 then Motorphase <= b"1100";
                  elsif int_Phasecount = 4 then Motorphase <= b"0110";
                  end if;
-                 if (dataBus OR b"00111111") = b"11111111" then -- check if reverse bit is set
+                 -- Reverse if dataBus 2 MSB are 11
+                 if (dataBus OR b"00111111") = b"11111111" then 
                     int_Phasecount := int_Phasecount - 1; -- Move backwards
                     if int_Phasecount = 0 then int_Phasecount := 4;
                     end if;
@@ -74,18 +78,19 @@ begin
                     if int_Phasecount = 5 then int_Phasecount := 1;
                     end if;
                  end if;
- --           else
- --               stepperFinished <= false;
- --               int_count := 0;
             end if;
         end if;
     end process;
     
+    -- stepCount ignores 2 MSB of dataBus since they are used for controlling direction
+    -- the remaining 6 MSB is multiplied to give a more reasonable step count.
     stepCount <= to_integer(unsigned(dataBus AND b"00111111")) * 100;
     
+    -- Right Motor is deactivated when dataBus 2 MSB are 01
     rightMotorPhase <= b"0000" when (dataBus OR b"00111111") = b"01111111" else
                        Motorphase;
     
+    -- Left Motor is deactivated when dataBus 2 MSB are 10
     leftMotorPhase  <= b"0000" when (dataBus OR b"00111111") = b"10111111" else
                        Motorphase;
 end Behavioral;

@@ -46,9 +46,9 @@ begin
             end if;
             -- Update servoPOS if IR= PDN or PUP
             if IR = PDN then 
-                servoPOS <= '0';
-            elsif IR = PUP then 
                 servoPOS <= '1';
+            elsif IR = PUP then 
+                servoPOS <= '0';
             end if;
         end if;
     end process;

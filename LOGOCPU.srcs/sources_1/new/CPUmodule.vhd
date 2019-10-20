@@ -36,8 +36,7 @@ entity CPUmodule is
      leftMotorPhase : out STD_LOGIC_VECTOR (3 downto 0);
            servoPWM : out STD_LOGIC;
                 rst : in  STD_LOGIC;
-                clk : in  STD_LOGIC;
-          servoTest : in  STD_LOGIC -- debug only
+                clk : in  STD_LOGIC
          );
          
 end CPUmodule;
@@ -51,31 +50,35 @@ architecture Master of CPUmodule is
     signal  IR_next : STD_LOGIC_VECTOR (7 downto 0) := X"00";
     signal       DR : STD_LOGIC_VECTOR (7 downto 0) := X"00";
     signal  DR_next : STD_LOGIC_VECTOR (7 downto 0) := X"00";
-    signal servoPos : STD_LOGIC := '1';
     signal    CPUen : boolean := TRUE;
     signal stepperFinished : boolean := FALSE;
 begin    
+------------------------------------
+--Define modules
 
     memory_unit: entity work.ROMmodule(Behavioral)
         port map(mAddress=>mAddress, mData=>mData);
         
     stepper_unit: entity work.StepperDriver(Behavioral)
-        port map(dataBus => mData,
+        port map(       dataBus => mData,
                 rightMotorPhase => rightMotorPhase,
-                leftMotorPhase => leftMotorPhase,
-                clk => clk,
+                 leftMotorPhase => leftMotorPhase,
+                            clk => clk,
                 stepperFinished => stepperFinished,
-                IR => IR);
+                             IR => IR);
                 
     servo_unit: entity work.ServoDriver(Behavioral)
         port map(IR => IR, servoPWM => servoPWM, clk  => clk);
-    
+ 
+ --------------------------------------   
+ --CPU Code:
+ 
     process(clk) 
     begin
         if rst = '0' then 
-            PC <= (others=>'0');
-            DR <= (others=>'0');
-            IR <= (others=>'0');
+            PC <= (others=>'0'); -- Reset Program Counter
+            DR <= (others=>'0'); -- Reset Data Register
+            IR <= (others=>'0'); -- Reset Instruction Register
         elsif rising_edge(clk) then
             if CPUen then
                 PC <= PC_next;  -- Update Program Counter
@@ -85,28 +88,30 @@ begin
         end if;
     end process;
 
+    -- PC_next is PC+1 unless there is a jump instruction
     PC_next <=  mData  when (IR = JMPZ AND NOT DR = X"00") else
                 PC + 1;
     
+    -- DR_next is DR unless there is a INCR, DECR, LDR or MxT instruction
     DR_next <=  DR + 1 when (IR = INCR) else
                 DR - 1 when (IR = DECR) else
                 mData  when (IR = LDR ) OR (IR = MxT) else
                 DR;
     
+    -- IR_next is whatever is in the memory unless there is a LDR or MxT instruction.
     IR_next <=  X"00" when (IR = LDR ) else
                 IR when (IR = MxT) AND (stepperFinished = FALSE)  else
                 X"00" when (IR = MxT) AND (stepperFinished = TRUE) else 
                 mData;
                 
+    --CPUen is used by the stepper-driver to halt the CPU
     CPUen   <=  FALSE when (IR = MxT) AND (stepperFinished = FALSE) else
                 TRUE;
     
+    -- the address buss (to the ROM) is always same as current PC (Program Counter)
     mAddress <= PC;
     
-    --LED <= PC;
-    --LED <= mAddress;
-    --LED <= mData;
+    -- LEDs shows the Data Register. Useful for debugging
     LED <= DR; -- debug
-    --PCR <= PC;
-    --servoPos <= servoTest; -- debug only
+
 end Master;
